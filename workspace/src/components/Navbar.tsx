@@ -12,7 +12,7 @@ export default function Navbar(){
                 </div>
                 <div className="flex items-center justify-center h-full">
                     <img
-                        src="/src/assets/vite.svg"
+                        src="/src/assets/chiemsee2024-cat-1192026.jpg"
                         alt="ProfilePicture"
                         className="w-12 h-12 rounded-full border-2 border-white"
                     />
