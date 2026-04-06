@@ -1,6 +1,6 @@
 export default function Navbar(){
     return (
-        <nav className="fixed inset-x-0 top-0 h-[68px] bg-[#0b132b]">
+        <nav className="fixed inset-x-0 top-0 h-17 bg-[#0b132b]">
             <div className="flex justify-between items-center h-full px-4 sm:px-6 lg:px-8 w-full">
                 <div className="flex items-center space-x-1 cursor-pointer">
                     <img
