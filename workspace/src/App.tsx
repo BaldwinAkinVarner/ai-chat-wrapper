@@ -37,7 +37,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0b132b] text-white overflow-hidden">
       <Navbar />
-      <div className="grid h-screen grid-cols-5 pt-17 overflow-hidden">
+      <div className="grid grid-cols-5 overflow-hidden" style={{ height: 'calc(100vh)' }}>
         <div className="col-span-1 bg-[#1c2541] overflow-hidden">
           <History messages={messages.filter(m => m.role === 'user')} onDelete={handleDelete} onClear={handleClear} />
         </div>

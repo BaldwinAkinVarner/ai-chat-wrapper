@@ -18,6 +18,28 @@ interface OutputProps {
 
 let openai: OpenAI | null = null;
 
+function safeUrlTransform(url: string): string {
+  const normalized = url.trim().toLowerCase()
+
+  // Allow relative links and in-page anchors.
+  if (normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../') || normalized.startsWith('#')) {
+    return url
+  }
+
+  // Allow common safe protocols.
+  if (
+    normalized.startsWith('http://') ||
+    normalized.startsWith('https://') ||
+    normalized.startsWith('mailto:') ||
+    normalized.startsWith('tel:')
+  ) {
+    return url
+  }
+
+  // Block potentially dangerous protocols such as javascript: and data:.
+  return ''
+}
+
 try {
   openai = new OpenAI({
     apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -79,16 +101,29 @@ async function callOpenAIAPI(prompt: string){
 export default function Output({ conversations, onSubmit }: OutputProps) {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [cooldownSeconds, setCooldownSeconds] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [conversations, isLoading])
 
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return
+
+    const timer = setInterval(() => {
+      setCooldownSeconds((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [cooldownSeconds])
+
   const handleSubmit = async (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault()
     const trimmed = prompt.trim()
-    if (!trimmed || isLoading) return
+    if (!trimmed || isLoading || cooldownSeconds > 0) return
+
+    setCooldownSeconds(5)
     
     // Add user message
     onSubmit(trimmed, 'user')
@@ -127,7 +162,7 @@ export default function Output({ conversations, onSubmit }: OutputProps) {
                     : 'bg-[#ffffff] text-slate-950 border border-[#3a506b]'
                 }`}>
                 <div className="whitespace-pre-wrap wrap-break-word prose max-w-none prose-sm">
-                  <ReactMarkdown>{String(message.text)}</ReactMarkdown>
+                  <ReactMarkdown urlTransform={safeUrlTransform}>{String(message.text)}</ReactMarkdown>
                 </div>
                   <p className="mt-1 text-xs opacity-70">{new Date(message.createdAt).toLocaleTimeString()}</p>
                 </div>
@@ -150,14 +185,14 @@ export default function Output({ conversations, onSubmit }: OutputProps) {
             <input
               className="textField w-full min-h-full p-2 outline-none bg-[#1c2541] text-white"
               type="text"
-              placeholder="Type your message..."
+              placeholder={cooldownSeconds > 0 ? `Cooldown: ${cooldownSeconds}s` : "Type your message..."}
               onChange={(e) => setPrompt(e.target.value)}
               value={prompt}
               disabled={isLoading}
             />
             <Button
               type="submit"
-              disabled={!prompt || isLoading}
+              disabled={!prompt || isLoading || cooldownSeconds > 0}
               className="submit w-40 bg-white! text-[#0b132b]! disabled:bg-[#c0c0c0]! disabled:text-[#0b132b]!"
               variant="contained"
               sx={{ borderRadius: 28 }}
@@ -179,14 +214,14 @@ export default function Output({ conversations, onSubmit }: OutputProps) {
           <input
             className="textField w-full min-h-full p-2 outline-none bg-[#3a506b] text-white"
             type="text"
-            placeholder="Senna Prompt Pussah Hoe"
+            placeholder={cooldownSeconds > 0 ? `Cooldown: ${cooldownSeconds}s` : "Senna Prompt Pussah Hoe"}
             onChange={(e) => setPrompt(e.target.value)}
             value={prompt}
             disabled={isLoading}
           />
           <Button
             type="submit"
-            disabled={!prompt || isLoading}
+            disabled={!prompt || isLoading || cooldownSeconds > 0}
             className="submit w-40 bg-white! text-[#0b132b]! disabled:bg-[#c0c0c0]! disabled:text-[#0b132b]!"
             variant="contained"
             sx={{ borderRadius: 28 }}
