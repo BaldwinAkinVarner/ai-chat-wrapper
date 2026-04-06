@@ -214,7 +214,7 @@ export default function Output({ conversations, onSubmit }: OutputProps) {
           <input
             className="textField w-full min-h-full p-2 outline-none bg-[#3a506b] text-white"
             type="text"
-            placeholder={cooldownSeconds > 0 ? `Cooldown: ${cooldownSeconds}s` : "Senna Prompt Pussah Hoe"}
+            placeholder={cooldownSeconds > 0 ? `Cooldown: ${cooldownSeconds}s` : "Send a prompt"}
             onChange={(e) => setPrompt(e.target.value)}
             value={prompt}
             disabled={isLoading}
